@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="headerfooter.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <meta charset="UTF-8">
+    <title>Toppage</title>
+    <style>
+        .v-app-bar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        .bar {
+            background-color: #c6ebc5 !important;
+        }
+        .v-app-bar h1 {
+            margin: 0;
+            font-weight: normal;
+            /* color: #777; */
+        }
+        .login-btn {  
+            color: #777 !important;
+            background-color: white !important;
+            position: absolute;
+            right: 16px;
+        }
+        .v-main {
+            padding-top: 64px;
+        }
+        .top-image {
+            padding-top: 64px;
+            display: block;
+            margin: 0 auto;
+            cursor: pointer;
+        }
+        .message h2 {
+            font-weight: normal;
+            text-align: center;
+        }
+        .highlight {
+            display: inline-block;
+            background: linear-gradient(transparent 60%, #c6ebc5 60%);
+            margin-bottom: 5px;
+        }
+        .highlighted {
+            background: linear-gradient(transparent 60%, #c6ebc5 60%);
+            display: inline-block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .text-subtitle-1 {
+            font-size: 14x;
+        }
+        .v-carousel {
+            padding-top: 48px;
+            width: 50vw;
+            min-height: 520px;
+            position: relative;
+        }
+        .v-carousel-item {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .keyword {
+            padding-top: 90px;
+        }
+        .keyword h2 {
+            font-weight: normal;
+            margin-bottom: 30px;
+        }
+        .keybtn {
+            background-color: #f5f5f5;
+            color: #555;
+            font-size: 14px;
+            margin: 1px;
+            border-radius: 8px;
+            text-transform: none;
+        }
+
+        /* .keybtn:hover {
+            background-color: #c6ebc5;
+        } */
+
+        .recommend {
+            padding-top: 100px;
+        }
+
+        .recommend h2 {
+            font-weight: normal;
+        }
+        .upper-recommend {
+            max-height: 480px;
+        }
+        .lower-recommend {
+            max-height: 520px;
+        }
+        .lower-image {
+            display: block;
+            margin: 0 auto;
+        }
+        .dialog p {
+            font-size: 18px;
+        }
+        .login-lower-btn {
+            color: #777 !important;
+            background-color: #c6ebc5 !important;
+        }
+
+        footer {
+            background-color: #c6ebc5 !important;
+        }
+        .footer-row {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 16px;
+        }
+        .copyright-text {
+            font-size: 14px;
+            color: #777;
+            margin-right: 400px;
+        }
+        .link-button {
+            font-size: 14px;
+            color: #777 !important;
+            text-decoration: none;
+        }
+        .link-button:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <v-app>
+            <header>
+                <v-app-bar class="bar">
+                    <h1>😊おちゃらけ😊</h1>
+                    <v-btn @click="navigate" class="login-btn">ログイン</v-btn>
+                </v-app-bar>
+            </header>
+
+            <v-main>
+                <div class="message">
+                    <img src="images/upper-sweets.jpg" alt="Sweets Image" class="top-image" @click="scrollToCarousel">
+                    <h2>
+                        <span class="highlight">😊期間限定 季節のレシピ大公開😊</span> <br>
+                        お手軽に作れるものからおしゃれなものまでたくさんあります💕 <br>
+                        ぜひお試しください🌟
+                    </h2>
+                </div>
+                <v-container>
+                    <v-row>
+                        <v-col cols="7">
+                            <v-carousel v-model="active" :interval="4000" cycle hide-delimiters id="carousel">
+                                <v-carousel-item v-for="(card, i) in cards" :key="i">
+                                    <v-card :loading="loading" class="mx-auto my-12" max-width="374" @click="navigateTo(card.url)">
+                                        <v-img :src="card.img" height="250"></v-img>
+                                        <v-card-title>{{ card.title }}</v-card-title>
+                                        <v-card-text>
+                                            <div class="my-4 text-subtitle-1">
+                                                <span class="highlighted">調理時間</span> {{ card.category }}
+                                            </div>
+                                            <div class="text-subtitle-1">
+                                                <span class="highlighted">キーワード</span> {{ card.description }}
+                                            </div>
+                                        </v-card-text>
+                                    </v-card>
+                                </v-carousel-item>
+                            </v-carousel>
+                        </v-col>
+            
+                        <v-col cols="5">
+                            <div class="keyword">
+                                <h2 class="highlight">人気のキーワード</h2>
+                                <v-row>
+                                    <v-col cols="auto">
+                                        <v-btn class="keybtn" outlined @click="showDialog = true">カフェ気分</v-btn>
+                                    </v-col>
+                                    <v-col cols="auto">
+                                        <v-btn class="keybtn" outlined @click="showDialog = true">パーティー</v-btn>
+                                    </v-col>
+                                    <v-col cols="auto">
+                                        <v-btn class="keybtn" outlined @click="showDialog = true">親子で作る</v-btn>
+                                    </v-col>
+                                    <v-col cols="auto">
+                                        <v-btn class="keybtn" outlined @click="showDialog = true">時短レシピ</v-btn>
+                                    </v-col>
+                                    <v-col cols="auto">
+                                        <v-btn class="keybtn" outlined @click="showDialog = true">おしゃれ</v-btn>
+                                    </v-col>
+                                    <v-col cols="auto">
+                                        <v-btn class="keybtn" outlined @click="showDialog = true">キャラメル</v-btn>
+                                    </v-col>
+                                    <v-col cols="auto">
+                                        <v-btn class="keybtn" outlined @click="showDialog = true">クリスマス</v-btn>
+                                    </v-col>
+                                    <v-col cols="auto">
+                                        <v-btn class="keybtn" outlined @click="showDialog = true">キャンディ</v-btn>
+                                    </v-col>
+                                    <v-col cols="auto">
+                                        <v-btn class="keybtn" outlined @click="showDialog = true">ハロウィン</v-btn>
+                                    </v-col>
+                                    <v-col cols="auto">
+                                        <v-btn class="keybtn" outlined @click="showDialog = true">はちみつ</v-btn>
+                                    </v-col>
+                                    <v-col cols="auto">
+                                        <v-btn class="keybtn" outlined @click="showDialog = true">チョコ</v-btn>
+                                    </v-col>
+                                    <v-col cols="auto">
+                                        <v-btn class="keybtn" outlined @click="showDialog = true">クッキー</v-btn>
+                                    </v-col>
+                                    <v-col cols="auto">
+                                        <v-btn class="keybtn" outlined @click="showDialog = true">ホットケーキミックス</v-btn>
+                                    </v-col>
+                                    <v-col cols="auto">
+                                        <v-btn class="keybtn" outlined @click="showDialog = true">お祝い</v-btn>
+                                    </v-col>
+
+                                </v-row>
+                            </div>
+                        </v-col>
+                    </v-row>
+
+                    <div class="recommend">
+                        <h2 class="highlight">その他おすすめレシピ一部ご紹介🥄</h2>
+                    </div>
+                    <v-row class="upper-recommend">
+                        <v-col cols="4">
+                            <v-card :loading="false" class="mx-auto my-12" max-width="374" @click="showDialog = true">
+                                <v-img src="images/image006.jpg" height="250"></v-img>
+                                <v-card-title>マカロン</v-card-title>
+                                <v-card-text>
+                                    <div class="my-4 text-subtitle-1">
+                                        <span class="highlighted">調理時間</span> 　　60分
+                                    </div>
+                                    <div class="text-subtitle-1">
+                                        <span class="highlighted">キーワード</span> 　おしゃれ カフェ気分 お祝い
+                                    </div>
+                                </v-card-text>
+                            </v-card>                            
+                        </v-col>
+                        <v-col cols="4">
+                            <v-card :loading="false" class="mx-auto my-12" max-width="374" @click="showDialog = true">
+                                <v-img src="images/image007.jpg" height="250"></v-img>
+                                <v-card-title>チョコがけクッキー</v-card-title>
+                                <v-card-text>
+                                    <div class="my-4 text-subtitle-1">
+                                        <span class="highlighted">調理時間</span> 　　10分
+                                    </div>
+                                    <div class="text-subtitle-1">
+                                        <span class="highlighted">キーワード</span> 　時短レシピ ハロウィン
+                                    </div>
+                                </v-card-text>
+                            </v-card>                            
+                        </v-col>
+                        <v-col cols="4">
+                            <v-card :loading="false" class="mx-auto my-12" max-width="374" @click="showDialog = true">
+                                <v-img src="images/image008.jpg" height="250"></v-img>
+                                <v-card-title>黄金フルーツ飴</v-card-title>
+                                <v-card-text>
+                                    <div class="my-4 text-subtitle-1">
+                                        <span class="highlighted">調理時間</span> 　　15分
+                                    </div>
+                                    <div class="text-subtitle-1">
+                                        <span class="highlighted">キーワード</span> 　おしゃれ 親子で作る 時短レシピ
+                                    </div>
+                                </v-card-text>
+                            </v-card>                            
+                        </v-col>
+                    </v-row>
+                    <v-row class="lower-recommend">
+                        <v-col cols="4">
+                            <v-card :loading="false" class="mx-auto my-12" max-width="374" @click="showDialog = true">
+                                <v-img src="images/image009.jpg" height="250"></v-img>
+                                <v-card-title>生キャラメル</v-card-title>
+                                <v-card-text>
+                                    <div class="my-4 text-subtitle-1">
+                                        <span class="highlighted">調理時間</span> 　　10分
+                                    </div>
+                                    <div class="text-subtitle-1">
+                                        <span class="highlighted">キーワード</span> 　親子で作る 時短レシピ
+                                    </div>
+                                </v-card-text>
+                            </v-card>                            
+                        </v-col>
+                        <v-col cols="4">
+                            <v-card :loading="false" class="mx-auto my-12" max-width="374" @click="showDialog = true">
+                                <v-img src="images/image010.jpg" height="250"></v-img>
+                                <v-card-title>しっとりパンプキンケーキ</v-card-title>
+                                <v-card-text>
+                                    <div class="my-4 text-subtitle-1">
+                                        <span class="highlighted">調理時間</span> 　　60分
+                                    </div>
+                                    <div class="text-subtitle-1">
+                                        <span class="highlighted">キーワード</span> 　パーティー ハロウィン
+
+                                    </div>
+                                </v-card-text>
+                            </v-card>                            
+                        </v-col>
+                        <v-col cols="4">
+                            <v-card :loading="false" class="mx-auto my-12" max-width="374" @click="showDialog = true">
+                                <v-img src="images/image011.jpg" height="250"></v-img>
+                                <v-card-title>はちみつ大学芋</v-card-title>
+                                <v-card-text>
+                                    <div class="my-4 text-subtitle-1">
+                                        <span class="highlighted">調理時間</span> 　　20分
+                                    </div>
+                                    <div class="text-subtitle-1">
+                                        <span class="highlighted">キーワード</span> 親子で作る 時短レシピ カフェ気分
+                                    </div>
+                                </v-card-text>
+                            </v-card>                            
+                        </v-col>
+                    </v-row>
+
+                    <v-dialog v-model="showDialog" max-width="500">
+                        <v-card>
+                          <v-card-title> </v-card-title>
+                          <v-card-text class="dialog">
+                            <div class="text-center my-4">
+                                <p>レシピ詳細・キーワード検索・お気に入り追加は<br>
+                                    ログインでご利用いただけます😊
+                                </p>
+                            </div>
+                            <div class="text-center mt-8">
+                              <v-btn @click="navigate" class="login-lower-btn">ログイン</v-btn>
+                            </div>
+                          </v-card-text>
+                          <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn color=#777 text @click="showDialog = false">閉じる</v-btn>
+                          </v-card-actions>
+                        </v-card>
+                    </v-dialog>
+
+                    <div class="image">
+                        <img src="images/lower-sweets.jpg" alt="Sweets Image" class="lower-image">
+                    </div>
+                </v-container>
+            </v-main>
+            <v-footer>
+                <v-row class="footer-row">
+                    <v-col class="text-right" cols="12">
+                        <span class="copyright-text">© 2024 株式会社おちゃらけ All rights reserved</span>
+                        <a href="employeelogin.html" class="link-button">従業員用</a>
+                    </v-col>
+                </v-row>
+            </v-footer>                                           
+        </v-app>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            vuetify: new Vuetify(),
+            data() {
+                return {
+                    showDialog: false,
+                    active: 0,
+                    loading: false,
+                    cards: [
+                        {
+                            img: 'images/image000.jpg',
+                            title: 'ガトーショコラ',
+                            category: '　　60分',
+                            description: '　パーティー お祝い クリスマス',
+                            url: 'recipe_20.html'
+                        },
+                        {
+                            img: 'images/image001.jpg',
+                            title: 'スモア風 マシュマロサンドクッキー',
+                            category: '　　5分',
+                            description: '　親子で作る 時短レシピ',
+                            url: 'recipe_21.html'
+                        },
+                        {
+                            img: 'images/image002.jpg',
+                            title: '丸ごと焼きりんご',
+                            category: '　　70分',
+                            description: '　おしゃれ',
+                            url: 'recipe_22.html'
+                        },
+                        {
+                            img: 'images/image003.jpg',
+                            title: 'キャラメルポップコーン',
+                            category: '　　20分',
+                            description: '　パーティー ハロウィン 時短レシピ',
+                            url: 'recipe_23.html'
+                        },
+                        {
+                            img: 'images/image004.jpg',
+                            title: 'メープルチュロス',
+                            category: '　　20分',
+                            description: '　親子で作る 時短レシピ',
+                            url: 'recipe_24.html'
+                        },
+                        {
+                            img: 'images/image005.jpg',
+                            title: 'カステラ',
+                            category: '　　75分',
+                            description: '　パーティー',
+                            url: 'recipe_25.html'
+                        }
+                    ]
+                }
+            },
+            methods: {
+                navigateTo(url) {
+                    window.location.href = url;
+                },
+                navigate() {
+                    window.location.href = 'userlogin.html';
+                },
+                scrollToCarousel() {
+                    const carouselElement = document.getElementById('carousel');
+                    if (carouselElement) {
+                        carouselElement.scrollIntoView({ behavior: 'smooth' });
+                    }
+                },
+            }
+        })
+    </script>
+</body>
+</html>

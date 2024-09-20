@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="headerfooter.css" --> 
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+        <meta charset="UTF-8">
+        <title>Employee Login</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                /* background-image: url('https://th.bing.com/th/id/OIP.gQUYX3QqXXynQkeQl4MWWAHaHr?rs=1&pid=ImgDetMain'); */
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+            }
+   
+            .v-application {
+                background-color: rgba(255, 255, 255, 0.8);
+            }
+   
+            .v-main {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+            }
+   
+            .login-container {
+                max-width: 400px;
+                padding: 20px;
+                background-color: rgba(255, 255, 255, 0.9);
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+   
+            h3 {
+                text-align: center;
+                color: #4CAF50;
+            }
+   
+            .v-btn {
+                background-color: #4CAF50;
+                color: #fff;
+                margin-top: 20px;
+            }
+   
+            .v-btn:hover {
+                background-color: #388E3C;
+            }
+   
+            .v-alert {
+                margin-top: 20px;
+            }
+   
+            .v-text-field label {
+                color: #388E3C;
+            }
+        </style>
+    </head>
+    
+    <body>
+        <div id="app">
+            <v-app>
+                <v-app-bar app>
+                    <h1>😊おちゃらけ😊</h1>
+                    <v-spacer></v-spacer>
+                </v-app-bar>
+ 
+                <v-main>
+                    <v-container class="login-container">
+                        <h3>従業員ログインページ</h3>
+                        <v-form ref="form">
+                            <v-text-field 
+                                v-model="employee_id"
+                                label="ID"
+                                :rules="[rules.required]"
+                                color="#1b5e20"
+                                required
+                            ></v-text-field>
+                            <v-text-field
+                                v-model="employee_password"
+                                label="パスワード"
+                                type="password"
+                                :rules="[rules.required]"
+                                color="#1b5e20"
+                                required
+                            ></v-text-field>
+                            <v-btn @click="login">ログイン</v-btn>
+                            <v-btn @click="toIndex">戻る</v-btn>
+                        </v-form>
+                        <v-alert v-if="errorMessage" type="error">{{ errorMessage }}</v-alert>
+                    </v-container>
+                </v-main>
+ 
+                <v-footer>
+                    <v-row class="footer-row justify-center align-center">
+                        <v-col class="text-center" cols="12">
+                            <span class="copyright-text">© 2024 株式会社おちゃらけ All rights reserved</span>
+                        </v-col>
+                    </v-row>
+                </v-footer>
+            </v-app>
+        </div>
+ 
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <script>
+            new Vue({
+                el: '#app',
+                vuetify: new Vuetify(),
+                data(){
+                    return{
+                        employee_id: '',
+                        employee_password: '',
+                        errorMessage: '',
+                        rules: {
+                            required: value => !!value || '必須項目です。',
+                        }
+                    }
+                },
+                methods: {
+                    async login(){
+                        const employee_id = this.employee_id;
+                        const employee_password = this.employee_password;
+                        const loginData = {
+                            employee_id: employee_id,
+                            employee_password: employee_password,
+                        };
+ 
+                        if (this.$refs.form.validate()) {
+                            try {
+                                const response = await axios.post('https://m3h-kouhei-2010.azurewebsites.net/api/EMPLOYEELOGIN', loginData, {
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    }
+                                });
+                                const token = response.data.token; // サーバーから返されたトークン
+                                sessionStorage.setItem('authToken', token);//トークンをsessionStorageに保存
+ 
+                                //デバック用ログ
+                                // console.log('Login response:', response.data);
+                                // console.log('Type of message:', typeof response.data.message);
+                                // console.log('Response status:', response.status);
+ 
+                                if (response.status === 200 && response.data === 'Login successful') {
+                                    console.log('Login successful:', employee_id, employee_password);
+                                    window.location.href = './management.html';
+                                } else {
+                                    console.error('Login failed:', response.data);
+                                    this.errorMessage = 'IDもしくはパスワードが間違っています。';
+                                }
+ 
+                            } catch (error) {
+                                if (error.response) {
+                                    console.error('Login failed with status code:', error.response.status);
+                                    console.error('Error response data:', error.response);
+                                    this.errorMessage = 'サーバーエラーが発生しました。後ほど再試行してください。';
+                                } else if (error.request) {
+                                    console.error('No response received:', error.request);
+                                    this.errorMessage = 'サーバーからの応答がありません。ネットワーク接続を確認してください。';
+                                } else {
+                                    console.error('Error setting up request:', error.message);
+                                    this.errorMessage = 'リクエストの設定中にエラーが発生しました。再度試してください。';
+                                }
+                            }
+ 
+                        } else {
+                            console.error('Form validation failed');
+                        }                    
+                    },
+                    toIndex(){
+                        window.location.href = 'index.html';
+                    }                
+                }
+            })
+        </script>
+    </body>
+</html>

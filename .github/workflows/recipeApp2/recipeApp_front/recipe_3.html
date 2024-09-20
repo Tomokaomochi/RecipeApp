@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="recipe_style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>マカロン | お菓子メーカー</title>
+</head>
+<body>
+  <div id="app">
+    <v-app>
+      <!-- ヘッダー -->
+      <header class="app-header">🍰おちゃらけ天使のお菓子レシピ🎂</header>
+
+      <div class="title-container">
+        <h1>マカロン</h1>
+      </div>
+
+      <v-row class="outline">
+        <!-- 画像部分 -->
+        <v-col cols="7" class="recipe-photo">
+          <img class="recipe-photo" src="https://images.pexels.com/photos/7296682/pexels-photo-7296682.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="マカロンの画像">
+        </v-col>
+
+        <!-- レシピ情報部分 -->
+        <v-col cols="5">
+          <div class="recipe-info">
+            <!-- お気に入りボタン -->
+            <v-btn
+              v-if="!isFavorite"
+              color="amber accent-3"
+              @click="addToFavorite"
+              class="favorite-btn">
+              <v-icon>mdi-star-outline</v-icon> お気に入りに追加
+            </v-btn>
+
+            <v-btn
+              v-else
+              color="amber accent-3"
+              @click="deleteFromFavorite"
+              class="favorite-btn">
+              <v-icon>mdi-star</v-icon> お気に入りから削除
+            </v-btn>
+
+            <p><strong>カテゴリー:</strong> マカロン</p>
+            <p><strong>調理時間:</strong> 60分</p>
+            <p><strong>使用商品:</strong> おちゃらけチョコ(ミルク)、おちゃらけチョコ(ブラック)</p>
+          </div>
+        </v-col>
+      </v-row>
+
+      <v-row class="details">
+        <!-- 材料部分 -->
+        <v-col cols="5" class="ingredients">
+          <h2>材料</h2>
+          <ul>
+            <li>ココアパウダー 10g</li>
+            <li>卵白 2個分</li>
+            <li>グラニュー糖 30g</li>
+            <li>アーモンドパウダー 80g</li>
+            <li>粉糖 130g</li>
+          </ul>
+          <p><strong>☆ガナッシュ:</strong> ブラックチョコレート 50g、ミルクチョコレート 50g、生クリーム 100ml、お好みでブランデー 5ml</p>
+        </v-col>
+
+        <!-- 手順部分 -->
+        <v-col cols="7" class="steps">
+          <h2>手順</h2>
+          <ol>
+            <li>下準備
+              <ul>
+                <li>チョコレートを刻んでおく。</li>
+                <li>卵白は冷やす。</li>
+                <li>粉類をふるう。</li>
+                <li>オーブンを130℃に予熱。</li>
+              </ul>
+            </li>
+            <li>マカロンの土台
+              <ul>
+                <li>卵白とグラニュー糖でメレンゲを作る。</li>
+                <li>粉類を加えて生地を作る。</li>
+                <li>絞り袋で成形。</li>
+                <li>30分以上乾燥。</li>
+                <li>130℃で20分、170℃で3分焼く。</li>
+              </ul>
+            </li>
+            <li>ガナッシュ
+              <ul>
+                <li>生クリームを沸騰させ、チョコレートに加える。</li>
+                <li>混ぜて冷やし、もったりしたら完成。</li>
+              </ul>
+            </li>
+            <li>仕上げ
+              <ul>
+                <li>ガナッシュを挟んで完成。</li>
+              </ul>
+            </li>
+          </ol>
+        </v-col>
+      </v-row>
+
+      <!-- 戻るボタン -->
+      <v-col cols="12" class="btn-col">
+        <v-btn @click="navigate()" class="recipe_btn btn">戻る</v-btn>
+      </v-col>
+    </v-app>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    new Vue({
+      el: '#app',
+      vuetify: new Vuetify(),
+      data() {
+        return {
+          isFavorite: false
+        };
+      },
+      async mounted() {
+        await this.checkIfFavorite();
+      },
+      methods: {
+        async getUserId() {
+          const user_name = sessionStorage.getItem('user_name');
+          if (user_name) {
+            try {
+              const loginResponse = await fetch(`https://m3h-kouhei-2010.azurewebsites.net/api/LOGINIDSELECT?user_name=${user_name}`);
+              const userIds = await loginResponse.json();
+              if (userIds.length === 0) {
+                console.error('ユーザーが見つかりませんでした。');
+              }
+              return userIds[0];
+            } catch (error) {
+              console.error('エラーが発生しました:', error);
+            }
+          }
+        },
+        async addToFavorite() {
+          const user_id = await this.getUserId();
+          const recipe_id = sessionStorage.getItem("recipe_id");
+          const favoritedata = { user_id, recipe_id };
+
+          if (user_id && recipe_id) {
+            try {
+              const response = await axios.post("https://m3h-kouhei-2010.azurewebsites.net/api/FAVORITEINSERT", favoritedata);
+              if (response.status === 200) {
+                this.isFavorite = true;
+              }
+            } catch (error) {
+              console.error("エラー:", error);
+            }
+          }
+        },
+        async deleteFromFavorite() {
+          const user_id = await this.getUserId();
+          const recipe_id = sessionStorage.getItem("recipe_id");
+
+          if (user_id && recipe_id) {
+            try {
+              const response = await axios.post("https://m3h-kouhei-2010.azurewebsites.net/api/FAVORITEDELETE", { user_id, recipe_id });
+              if (response.status === 200) {
+                this.isFavorite = false;
+              }
+            } catch (error) {
+              console.error("エラー:", error);
+            }
+          }
+        },
+        async checkIfFavorite() {
+          const user_id = await this.getUserId();
+          const recipe_id = sessionStorage.getItem("recipe_id");
+
+          if (user_id && recipe_id) {
+            try {
+              const response = await axios.get(`https://m3h-kouhei-2010.azurewebsites.net/api/CHECKIFFAVORITE?user_id=${user_id}&recipe_id=${recipe_id}`);
+              this.isFavorite = response.data.isFavorite;
+            } catch (error) {
+              console.error('Error:', error);
+            }
+          }
+        },
+        navigate() {
+          window.location.href = 'home.html';
+        }
+      }
+    });
+  </script>
+</body>
+</html>
